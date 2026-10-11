@@ -4,14 +4,18 @@ from pydantic import BaseModel, Field, field_validator
 
 
 DegreeType = Literal["Sci&Tech", "Comm&Mgmt", "Others"]
+Branch = Literal["CSE", "AIML", "ISE", "IT", "ECE", "EEE", "ME", "CE"]
 Source = Literal["manual", "document", "external"]
 
 
 class Profile(BaseModel):
     ssc_p: float = Field(ge=0, le=100)
     hsc_p: float = Field(ge=0, le=100)
-    degree_p: float = Field(ge=0, le=100)
-    degree_t: DegreeType
+    # Keep legacy fields readable for existing datasets; new clients send CGPA and branch.
+    degree_p: float | None = Field(default=None, ge=0, le=100)
+    degree_t: DegreeType | None = None
+    cgpa: float | None = Field(default=None, ge=0, le=10)
+    branch: Branch | None = None
     workex: Literal["Yes", "No"]
     etest_p: float = Field(ge=0, le=100)
     specialisation: str | None = None
@@ -19,6 +23,9 @@ class Profile(BaseModel):
     internship_duration: int | None = Field(default=None, ge=0)
     project_count: int | None = Field(default=None, ge=0)
     certification_count: int | None = Field(default=None, ge=0)
+    hackathon_count: int | None = Field(default=None, ge=0)
+    open_source_contributions: int | None = Field(default=None, ge=0)
+    communication_level: Literal["Beginner", "Intermediate", "Advanced"] | None = None
     programming_languages: list[str] = Field(default_factory=list)
     frameworks_tools: list[str] = Field(default_factory=list)
     coding_problems_solved: int | None = Field(default=None, ge=0)

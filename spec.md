@@ -504,9 +504,33 @@ Use `PREDICTION_MODE=model` only after artifacts and model integration tests pas
 
 ## 16. Deferred Work
 
-- Authentication and role-based access.
+- Production authentication provider, password reset, email verification, and role-based coordinator access. The MVP now includes a demo student login and protected dashboard contract.
 - Production database and object storage.
 - Automated retraining.
 - Cohort dashboards and ranking-like views.
 - Advanced deep-learning or LLM features.
 - Deployment infrastructure and CI/CD beyond local MVP needs.
+
+## 17. Authentication and Dashboard Addendum
+
+### MVP authentication
+
+- `POST /api/v1/auth/login` accepts email and password and returns a bearer token plus user summary.
+- `GET /api/v1/auth/me` validates the bearer token.
+- `GET /api/v1/dashboard/summary` is protected and returns the authenticated student's readiness snapshot, profile completion, focus areas, and recent activity.
+- The React client stores the demo token in local storage, exposes Log in / Log out actions, and redirects authenticated users to the dashboard view.
+- Current credentials are local demo credentials only and must not be treated as production authentication.
+
+### Dashboard UI
+
+The dashboard keeps the landing-page visual language: cream canvas, Benne headings, Manrope body text, JetBrains Mono labels, blue score card, warm white cards, generous whitespace, and responsive stacking on mobile.
+
+Dashboard sections:
+
+1. Welcome header with user name and log-out action.
+2. Readiness snapshot and level.
+3. Profile completion metric.
+4. Number of readiness checks.
+5. Next-focus suggestions.
+6. Recent activity.
+7. CTA to start another readiness check.

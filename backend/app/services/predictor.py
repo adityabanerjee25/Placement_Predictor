@@ -5,7 +5,8 @@ class MockPredictor:
     version = "mock-v1"
 
     def predict(self, profile: Profile) -> PredictionResponse:
-        scores = [profile.ssc_p, profile.hsc_p, profile.degree_p, profile.etest_p]
+        degree_score = profile.cgpa * 10 if profile.cgpa is not None else (profile.degree_p or 0)
+        scores = [profile.ssc_p, profile.hsc_p, degree_score, profile.etest_p]
         base = sum(scores) / len(scores)
         experience_bonus = 4 if profile.workex == "Yes" else 0
         project_bonus = min((profile.project_count or 0) * 2, 8)
@@ -13,7 +14,7 @@ class MockPredictor:
         score = round(probability * 100)
         level = "Ready" if score >= 75 else "Promising" if score >= 55 else "Building"
         factors = [
-            Factor(label="Degree performance", direction="positive" if profile.degree_p >= 65 else "focus", value=f"{profile.degree_p:.0f}%"),
+            Factor(label="Academic performance", direction="positive" if degree_score >= 65 else "focus", value=f"{degree_score:.0f}%"),
             Factor(label="Aptitude readiness", direction="positive" if profile.etest_p >= 65 else "focus", value=f"{profile.etest_p:.0f}%"),
             Factor(label="Project depth", direction="positive" if (profile.project_count or 0) >= 2 else "focus", value=f"{profile.project_count or 0} projects"),
         ]
