@@ -31,6 +31,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=False,
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization"],
@@ -133,7 +134,12 @@ async def admin_insights(request: Request):
     df = pd.read_csv(data_path)
     placed = pd.to_numeric(df["placement_status"], errors="coerce").fillna(0)
     model = get_model()
-    probabilities = model.predict_proba(df[ALL_FEATURES])[:, 1] if model is not None else placed
+    try:
+        probabilities = model.predict_proba(df[ALL_FEATURES])[:, 1] if model is not None else placed
+    except Exception as exc:
+        # Keep analytics available while an old serialized model is being replaced.
+        print(f"Admin inference warning, using placement status fallback: {exc}")
+        probabilities = placed.to_numpy(dtype=float)
     salary_column = "salary_package_lpa" if "salary_package_lpa" in df else "salary_package"
     by_branch = []
     for branch, group in df.assign(_placed=placed, _probability=probabilities).groupby("branch", sort=True):

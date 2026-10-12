@@ -42,7 +42,10 @@ export async function extractDocument(file) {
 
 export async function login(email, password) {
   const response = await fetch(`${API_BASE}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, password }) })
-  if (!response.ok) throw new Error('Invalid email or password')
+  if (!response.ok) {
+    const detail = await response.json().catch(() => null)
+    throw new Error(detail?.detail || `Login failed (${response.status})`)
+  }
   const data = await response.json()
   localStorage.setItem(tokenKey, data.token)
   localStorage.setItem(userKey, JSON.stringify(data.user))
